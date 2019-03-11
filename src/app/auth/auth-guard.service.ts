@@ -1,31 +1,28 @@
 import { CanActivate } from '@angular/router/src/utils/preactivation';
-import { ActivatedRouteSnapshot, RouterStateSnapshot, Router, CanLoad, UrlSegment } from '@angular/router';
-
-import { AuthService } from './auth.service';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { Injectable } from '@angular/core';
-import { Route } from '@angular/compiler/src/core';
-import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+
+import * as fromApp from '../store/app.reducers';
+import * as fromAuth from './store/auth.reducer';
 
 @Injectable()
-export class AuthGuard implements CanActivate, CanLoad {
+export class AuthGuard implements CanActivate {
   path: ActivatedRouteSnapshot[];
   route: ActivatedRouteSnapshot;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private router: Router,
+    private store: Store<fromApp.AppState>
+  ) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    if (this.authService.isAuthenticated()) {
-      return true;
-    }
-    this.router.navigate(['/']);
-    return;
+    return this.store.select('auth')
+      .pipe(take(1))
+      .pipe(map(
+        (authState: fromAuth.State) => authState.authenticated
+      ));
   }
 
-  canLoad(route: Route, segments: UrlSegment[]): boolean | Observable<boolean> | Promise<boolean> {
-    if (this.authService.isAuthenticated()) {
-      return true;
-    }
-    this.router.navigate(['/']);
-    return;
-  }
 }
