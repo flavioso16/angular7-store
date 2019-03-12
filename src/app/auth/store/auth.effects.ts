@@ -12,22 +12,18 @@ export class AuthEffects {
   @Effect()
   authSignup = this.actions$
     .pipe(
-      ofType(AuthActions.TRY_SIGNUP)
-    )
-    .pipe(
+      ofType(AuthActions.TRY_SIGNUP),
+
       map((action: AuthActions.TrySignup) => {
         return action.payload
-      })
-    )
-    .pipe(
+      }),
+
       switchMap((authData: { username: string, password: string }) => {
         return from(firebase.auth().createUserWithEmailAndPassword(authData.username, authData.password));
-      })
-    )
-    .pipe(
-      switchMap(() => from(firebase.auth().currentUser.getIdToken()))
-    )
-    .pipe(
+      }),
+
+      switchMap(() => from(firebase.auth().currentUser.getIdToken())),
+
       mergeMap((token: string) => {
         this.router.navigate(['/']);
         return [
@@ -45,22 +41,18 @@ export class AuthEffects {
   @Effect()
   authSignin = this.actions$
     .pipe(
-      ofType(AuthActions.TRY_SIGNIN)
-    )
-    .pipe(
+      ofType(AuthActions.TRY_SIGNIN),
+
       map((action: AuthActions.TrySignin) => {
         return action.payload
-      })
-    )
-    .pipe(
+      }),
+
       switchMap((authData: { username: string, password: string }) => {
         return from(firebase.auth().signInWithEmailAndPassword(authData.username, authData.password));
-      })
-    )
-    .pipe(
-      switchMap(() => from(firebase.auth().currentUser.getIdToken()))
-    )
-    .pipe(
+      }),
+
+      switchMap(() => from(firebase.auth().currentUser.getIdToken())),
+
       mergeMap((token: string) => {
         this.router.navigate(['/']);
         return [
@@ -82,7 +74,7 @@ export class AuthEffects {
       tap(() => {
         this.router.navigate(['/']);
       })
-    )
+    );
 
   constructor(private actions$: Actions, private router: Router) { }
 }
